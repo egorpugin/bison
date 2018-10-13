@@ -1,4 +1,4 @@
-/* A Bison parser, made by GNU Bison 3.1.91.31-00793.  */
+/* A Bison parser, made by GNU Bison 3.2.16-5a27.  */
 
 /* Bison interface for Yacc-like parsers in C
 
@@ -64,7 +64,7 @@ extern int gram_debug;
     param_parse  = 1 << 1,
     param_both   = param_lex | param_parse
   } param_type;
-#line 645 "src/parse-gram.y" /* yacc.c:1906  */
+#line 649 "src/parse-gram.y" /* yacc.c:1906  */
 #include "muscle-tab.h"
 
 #line 71 "src/parse-gram.h" /* yacc.c:1906  */
@@ -158,7 +158,7 @@ named_ref *named_ref;
 param_type param;
 #line 409 "src/parse-gram.y" /* yacc.c:1906  */
 code_props_type code_type;
-#line 647 "src/parse-gram.y" /* yacc.c:1906  */
+#line 651 "src/parse-gram.y" /* yacc.c:1906  */
 
   struct
   {
