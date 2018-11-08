@@ -65,6 +65,9 @@ static int generated_files_size = 0;
 
 uniqstr grammar_file = NULL;
 uniqstr current_file = NULL;
+uniqstr *include_dirs = NULL;
+int include_dirs_size = 0;
+int includes_used = 0;
 
 /* If --output=dir/foo.c was specified,
    DIR_PREFIX is 'dir/' and ALL_BUT_EXT and ALL_BUT_TAB_EXT are 'dir/foo'.
@@ -96,7 +99,7 @@ static char *header_extension = NULL;
 | STR1, and STR2.                                                  |
 `-----------------------------------------------------------------*/
 
-static char *
+char *
 concat2 (char const *str1, char const *str2)
 {
   size_t len = strlen (str1) + strlen (str2);

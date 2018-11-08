@@ -27,6 +27,7 @@
 #include "location.h"
 
 location const empty_location = EMPTY_LOCATION_INIT;
+extern int includes_used;
 
 /* If BUF is null, add BUFSIZE (which in this case must be less than
    INT_MAX) to COLUMN; otherwise, add mbsnwidth (BUF, BUFSIZE, 0) to
@@ -163,6 +164,8 @@ location_caret (location loc, FILE *out)
 {
   /* FIXME: find a way to support multifile locations, and only open once each
      file. That would make the procedure future-proof.  */
+  if (includes_used)
+      return;
   if (! (caret_info.source
          || (caret_info.source = fopen (loc.start.file, "r")))
       || loc.start.column == -1 || loc.start.line == -1)

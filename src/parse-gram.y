@@ -89,6 +89,12 @@
   /* A string that describes a char (e.g., 'a' -> "'a'").  */
   static char const *char_name (char);
 
+  /* indicates how many EOFS we expect */
+  int include_depth = 0;
+
+  /* include files stack */
+  uniqstr *current_file_stack = 0;
+
   #define YYTYPE_INT16 int_fast16_t
   #define YYTYPE_INT8 int_fast8_t
   #define YYTYPE_UINT16 uint_fast16_t
@@ -148,6 +154,7 @@
   PERCENT_FLAG            "%<flag>"
   PERCENT_FILE_PREFIX     "%file-prefix"
   PERCENT_GLR_PARSER      "%glr-parser"
+  PERCENT_INCLUDE         "%include"
   PERCENT_INITIAL_ACTION  "%initial-action"
   PERCENT_LANGUAGE        "%language"
   PERCENT_NAME_PREFIX     "%name-prefix"
@@ -277,6 +284,7 @@ prologue_declarations:
 
 prologue_declaration:
   grammar_declaration
+| include
 | "%{...%}"
     {
       muscle_code_grow (union_seen ? "post_prologue" : "pre_prologue",
@@ -583,6 +591,7 @@ grammar:
    body of the grammar.  */
 rules_or_grammar_declaration:
   rules
+| include
 | grammar_declaration ";"
 | error ";"
     {
@@ -628,6 +637,64 @@ rhs:
 named_ref.opt:
   %empty         { $$ = 0; }
 | BRACKETED_ID   { $$ = named_ref_new ($1, @1); }
+;
+
+/*---------------------.
+|      %includes       |
+`---------------------*/
+
+include:
+  "%include" STRING
+    {
+      includes_used = 1;
+
+      const char *fn = $2;
+      FILE *f = fopen(fn, "r");
+      if (!f)
+        {
+          for (int i = 0; i < include_dirs_size; i++)
+          {
+            const char *fn2 = concat2(include_dirs[i], fn);
+            f = fopen(fn2, "r");
+            if (f)
+            {
+              fn = fn2;
+              break;
+            }
+          }
+          if (!f)
+          {
+            yyerror(&yylloc, YY_("cannot open a file"));
+            YYERROR;
+          }
+        }
+
+      if (include_depth == 0)
+        current_file_stack = xmalloc(sizeof(uniqstr));
+      else
+        current_file_stack = xnrealloc(current_file_stack, include_depth + 1, sizeof(uniqstr));
+
+      current_file = fn;
+      current_file_stack[include_depth] = fn;
+
+      void *b = gram__create_buffer(f, 16 * 1024);
+      gram_push_buffer_state(b);
+      include_depth++;
+    }
+| GRAM_EOF
+    {
+      if (include_depth == 0)
+        {
+          yyerror (&yylloc, YY_("syntax error, unexpected end of file"));
+          YYERROR;
+        }
+      gram_pop_buffer_state();
+      include_depth--;
+      current_file = current_file_stack[include_depth];
+
+      if (include_depth != 0)
+        free(current_file_stack[include_depth + 1]);
+    }
 ;
 
 /*---------------------.
@@ -708,8 +775,8 @@ string_as_id:
 ;
 
 epilogue.opt:
-  %empty
-| "%%" EPILOGUE
+  //%empty |
+  "%%" EPILOGUE
     {
       muscle_code_grow ("epilogue", translate_code ($2, @2, true), @2);
       code_scanner_last_string_free ();

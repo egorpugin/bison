@@ -291,6 +291,8 @@ Operation modes:\n\
 Parser:\n\
   -L, --language=LANGUAGE          specify the output programming language\n\
   -S, --skeleton=FILE              specify the skeleton to use\n\
+  -I, --include=DIR                specify include directory for\n\
+                                   %include directives\n\
   -t, --debug                      instrument the parser for tracing\n\
                                    same as '-Dparse.trace'\n\
       --locations                  enable location support\n\
@@ -459,6 +461,7 @@ language_argmatch (char const *arg, int prio, location loc)
 static char const short_options[] =
   "D:"
   "F:"
+  "I:"
   "L:"
   "S:"
   "T::"
@@ -500,6 +503,9 @@ static struct option const long_options[] =
 
   /* Parser. */
   { "name-prefix",   required_argument,   0,   'p' },
+
+  /* Input. */
+  { "include",     required_argument,   0,   'I' },
 
   /* Output. */
   { "file-prefix", required_argument,   0,   'b' },
@@ -555,7 +561,6 @@ command_line_location (void)
   return res;
 }
 
-
 void
 getargs (int argc, char *argv[])
 {
@@ -601,6 +606,17 @@ getargs (int argc, char *argv[])
                                                  : MUSCLE_PERCENT_DEFINE_F);
         }
         break;
+
+      case 'I':
+          if (include_dirs_size == 0)
+          {
+              include_dirs = xmalloc(sizeof(uniqstr));
+              include_dirs_size++;
+          }
+          else
+              include_dirs = xnrealloc(include_dirs, ++include_dirs_size, sizeof(uniqstr));
+          include_dirs[include_dirs_size - 1] = optarg;
+          break;
 
       case 'L':
         language_argmatch (optarg, command_line_prio,

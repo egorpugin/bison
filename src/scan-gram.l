@@ -227,8 +227,9 @@ eqopt    ([[:space:]]*=)?
   "%expect-rr"                      return PERCENT_EXPECT_RR;
   "%file-prefix"                    return PERCENT_FILE_PREFIX;
   "%fixed-output-files"             return PERCENT_YACC;
-  "%initial-action"                 return PERCENT_INITIAL_ACTION;
   "%glr-parser"                     return PERCENT_GLR_PARSER;
+  "%include"                        return PERCENT_INCLUDE;
+  "%initial-action"                 return PERCENT_INITIAL_ACTION;
   "%language"                       return PERCENT_LANGUAGE;
   "%left"                           return PERCENT_LEFT;
   "%lex-param"                      RETURN_PERCENT_PARAM(lex);

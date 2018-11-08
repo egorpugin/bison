@@ -58,6 +58,9 @@ extern uniqstr grammar_file;
 /* The current file name.  Might change with %include, or with #line.  */
 extern uniqstr current_file;
 
+/* Show whether %include statements are present. */
+extern int includes_used;
+
 /* The computed base for output file names.  */
 extern char *all_but_ext;
 
@@ -78,5 +81,9 @@ void unlink_generated_sources (void);
 FILE *xfopen (const char *name, char const *mode);
 void xfclose (FILE *ptr);
 FILE *xfdopen (int fd, char const *mode);
+
+/* Provided include dirs. */
+extern uniqstr *include_dirs;
+extern int include_dirs_size;
 
 #endif /* !FILES_H_ */
